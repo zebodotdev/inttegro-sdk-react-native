@@ -1,6 +1,6 @@
 # Inttegro React Native
 
-[API reference](https://react-native.inttegro.dev/v0.1.0/) ·
+[API reference](https://react-native.inttegro.dev/v0.2.0/) ·
 [Studio guide](https://studio.inttegro.com/sdks/react-native)
 
 Typed React Native facade for Inttegro's native payment sheet. This is an
@@ -15,9 +15,22 @@ import {
   presentPaymentSheet,
 } from '@inttegro/react-native';
 
-const telemetrySubscription = addPaymentSheetEventListener((event) => {
-  // Record this with your app-owned OpenTelemetry provider or logging sink.
-  recordInttegroEvent(event);
+// Your backend must create and finalize the Order before this handoff.
+const { orderId } = await merchantBackend.createCheckoutOrder(cart);
+
+const lifecycleSubscription = addPaymentSheetEventListener((event) => {
+  switch (event.type) {
+    case 'presented':
+      onPaymentFlowStarted();
+      break;
+    case 'paymentAttemptStarted':
+      onPaymentAttemptStarted();
+      break;
+    case 'paymentAttemptFailed':
+      // Recoverable: the customer can retry without leaving the native sheet.
+      onPaymentAttemptFailed({ category: event.errorType });
+      break;
+  }
 });
 
 await initializePaymentSheet({
@@ -28,24 +41,46 @@ await initializePaymentSheet({
 
 try {
   const result = await presentPaymentSheet();
+
+  switch (result.status) {
+    case 'completed':
+      onPaymentCompleted({ paymentId: result.paymentId });
+      await merchantBackend.verifyOrderPayment(orderId);
+      break;
+    case 'canceled':
+      onPaymentCanceled();
+      break;
+    case 'failed':
+      onPaymentSheetFailed(result.error);
+      break;
+  }
 } finally {
-  telemetrySubscription.remove();
+  lifecycleSubscription.remove();
 }
 ```
+
+Finalizing an Order seals its amount and activates checkout; it does not mean
+the payment has completed. Treat the immediate `completed` result as client UI
+state. Verify the owner-scoped Order from your backend before fulfillment.
 
 The TurboModule exchanges versioned JSON with the native iOS and Android
 artifacts. The native implementations own presentation, accessibility,
 authentication, payment collection, and lifecycle state; JavaScript only
 validates the public input and decodes the result.
 
-The event subscription receives ordered, per-presentation lifecycle and
-Checkout network events from native code. Inttegro does not install or own an
-exporter: the host decides whether to translate them into spans, logs, or other
-diagnostics. Events contain bounded status and correlation metadata, never
-Order or Payment IDs, customer or payer data, payment-method details, request or
-response bodies, redirect URLs, or raw error messages. `flowId` and `requestId`
-should not be used as metric labels. Subscribe before presenting the sheet so
-the first event is not missed.
+`addPaymentSheetEventListener` receives typed application-facing lifecycle
+events. A failed attempt is recoverable and does not resolve the presentation;
+the terminal `PaymentSheetResult` drives completion, cancellation, and
+sheet-failure behavior.
+
+Use `addPaymentSheetTelemetryListener` separately for ordered Checkout network
+diagnostics. Inttegro does not install or own an exporter: the host decides
+whether to translate them into spans, logs, or other signals. Events contain
+bounded status and correlation metadata, never Order or Payment IDs, customer
+or payer data, payment-method details, request or response bodies, redirect
+URLs, or raw error messages. `flowId` and `requestId` should not be used as
+metric labels. Subscribe before presenting the sheet so the first event is not
+missed.
 
 The package includes a Codegen-compatible TurboModule that delegates to the
 same native `Inttegro` artifacts used by the Flutter SDK. CocoaPods links the

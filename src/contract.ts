@@ -1,5 +1,7 @@
 import type {
   PaymentSheetConfiguration,
+  PaymentSheetEvent,
+  PaymentSheetEventType,
   PaymentSheetResult,
   PaymentSheetTelemetryEvent,
   PaymentSheetTelemetryEventName,
@@ -43,6 +45,22 @@ const TELEMETRY_EVENT_FIELDS = new Set([
   'requestId',
   'errorType',
 ]);
+const LIFECYCLE_EVENT_TYPES: Partial<
+  Record<PaymentSheetTelemetryEventName, PaymentSheetEventType>
+> = {
+  'inttegro.payment_sheet.presented': 'presented',
+  'inttegro.checkout.load.started': 'checkoutLoadStarted',
+  'inttegro.checkout.load.succeeded': 'checkoutLoadSucceeded',
+  'inttegro.checkout.load.failed': 'checkoutLoadFailed',
+  'inttegro.payment.attempt.started': 'paymentAttemptStarted',
+  'inttegro.payment.attempt.failed': 'paymentAttemptFailed',
+  'inttegro.payment.confirmation.required': 'confirmationRequired',
+  'inttegro.payment.authorization.required': 'authorizationRequired',
+  'inttegro.payment.status.polling': 'paymentStatusPolling',
+  'inttegro.payment_sheet.completed': 'completed',
+  'inttegro.payment_sheet.canceled': 'canceled',
+  'inttegro.payment_sheet.failed': 'failed',
+};
 
 export function normalizeConfiguration(
   configuration: PaymentSheetConfiguration
@@ -149,6 +167,21 @@ export function decodePaymentSheetTelemetryEvent(
     }
   }
   return value as unknown as PaymentSheetTelemetryEvent;
+}
+
+/** Converts a native diagnostic event into an application-facing lifecycle event. */
+export function toPaymentSheetEvent(
+  event: PaymentSheetTelemetryEvent
+): PaymentSheetEvent | null {
+  const type = LIFECYCLE_EVENT_TYPES[event.name];
+  if (!type) return null;
+  return {
+    flowId: event.flowId,
+    sequence: event.sequence,
+    type,
+    timestamp: event.timestamp,
+    ...(event.errorType ? { errorType: event.errorType } : {}),
+  };
 }
 
 export function decodePaymentSheetResult(payload: string): PaymentSheetResult {

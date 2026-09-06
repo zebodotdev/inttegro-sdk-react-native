@@ -5,6 +5,7 @@ import {
   decodePaymentSheetTelemetryEvent,
   decodePaymentSheetResult,
   normalizeConfiguration,
+  toPaymentSheetEvent,
 } from '../lib/contract.js';
 
 describe('payment-sheet contract', () => {
@@ -81,6 +82,21 @@ describe('payment-sheet contract', () => {
           JSON.stringify({ ...event, orderId: 'or_private' })
         ),
       /invalid telemetry event/
+    );
+
+    assert.deepEqual(toPaymentSheetEvent(event), {
+      flowId: event.flowId,
+      sequence: event.sequence,
+      type: 'checkoutLoadStarted',
+      timestamp: event.timestamp,
+    });
+    assert.equal(
+      toPaymentSheetEvent({
+        ...event,
+        name: 'inttegro.request.prepared',
+        operation: 'checkout.lookup',
+      }),
+      null
     );
   });
 });
