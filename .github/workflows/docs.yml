@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          ref: ${{ env.DOC_VERSION }}
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -48,6 +49,7 @@ jobs:
             echo "Invalid documentation version: $DOC_VERSION" >&2
             exit 1
           fi
+          SOURCE_SHA=$(git rev-parse HEAD)
 
           if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
             git fetch origin gh-pages:refs/remotes/origin/gh-pages
@@ -62,7 +64,7 @@ jobs:
           mkdir -p "pages-site/$DOC_VERSION"
           cp -R build/api-docs/. "pages-site/$DOC_VERSION/"
           printf '{"version":"%s","commit":"%s","repository":"%s"}\n' \
-            "$DOC_VERSION" "$GITHUB_SHA" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            "$DOC_VERSION" "$SOURCE_SHA" "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
             > "pages-site/$DOC_VERSION/provenance.json"
           printf '%s\n' "$DOC_DOMAIN" > pages-site/CNAME
           touch pages-site/.nojekyll
