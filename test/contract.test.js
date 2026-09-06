@@ -1,0 +1,86 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+
+import {
+  decodePaymentSheetTelemetryEvent,
+  decodePaymentSheetResult,
+  normalizeConfiguration,
+} from '../lib/contract.js';
+
+describe('payment-sheet contract', () => {
+  it('trims the checkout Order ID', () => {
+    assert.equal(
+      normalizeConfiguration({ orderId: '  or_test  ' }).orderId,
+      'or_test'
+    );
+  });
+
+  it('rejects unsafe configuration shapes', () => {
+    assert.throws(
+      () => normalizeConfiguration({ orderId: ' ' }),
+      /orderId/
+    );
+    assert.throws(
+      () =>
+        normalizeConfiguration({
+          orderId: 'or_test',
+          appearance: { primaryColor: '#xyz' },
+        }),
+      /primaryColor/
+    );
+  });
+
+  it('decodes native results without weakening the union', () => {
+    assert.deepEqual(
+      decodePaymentSheetResult(
+        JSON.stringify({ status: 'completed', paymentId: 'py_123' })
+      ),
+      { status: 'completed', paymentId: 'py_123' }
+    );
+    assert.throws(
+      () => decodePaymentSheetResult(JSON.stringify({ status: 'pending' })),
+      /unknown status/
+    );
+  });
+
+  it('validates telemetry configuration and privacy-safe events', () => {
+    const traceparent =
+      '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01';
+    assert.equal(
+      normalizeConfiguration({
+        orderId: 'or_test',
+        telemetry: { traceparent },
+      }).telemetry.traceparent,
+      traceparent
+    );
+    assert.throws(
+      () =>
+        normalizeConfiguration({
+          orderId: 'or_test',
+          telemetry: {
+            traceparent:
+              '00-00000000000000000000000000000000-00f067aa0ba902b7-01',
+          },
+        }),
+      /traceparent/
+    );
+
+    const event = {
+      flowId: '550e8400-e29b-41d4-a716-446655440000',
+      sequence: 1,
+      name: 'inttegro.checkout.load.started',
+      timestamp: '2026-09-04T12:00:00.000Z',
+    };
+    assert.deepEqual(
+      decodePaymentSheetTelemetryEvent(JSON.stringify(event)),
+      event
+    );
+    assert.throws(
+      () =>
+        decodePaymentSheetTelemetryEvent(
+          JSON.stringify({ ...event, orderId: 'or_private' })
+        ),
+      /invalid telemetry event/
+    );
+  });
+});

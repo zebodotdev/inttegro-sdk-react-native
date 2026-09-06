@@ -1,0 +1,68 @@
+{
+  "name": "@inttegro/react-native",
+  "version": "0.1.0",
+  "description": "Inttegro SDK for React Native",
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "react-native": "./src/index.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "android",
+    "ios",
+    "*.podspec"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "docs": "typedoc",
+    "test": "npm run build && node --test test/*.test.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "inttegro",
+    "payments",
+    "react-native",
+    "ios",
+    "android"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zebodotdev/inttegro-sdk-react-native.git"
+  },
+  "homepage": "https://react-native.inttegro.dev/",
+  "author": "Inttegro Eng <engineering@inttegro.com> (https://inttegro.com)",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-native": ">=0.82"
+  },
+  "devDependencies": {
+    "typedoc": "0.28.20",
+    "typescript": "^6.0.3"
+  },
+  "codegenConfig": {
+    "name": "InttegroSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.inttegro.reactnative"
+    },
+    "ios": {
+      "modulesProvider": {
+        "Inttegro": "InttegroModule"
+      }
+    }
+  }
+}

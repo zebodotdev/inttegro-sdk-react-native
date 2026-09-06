@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "build/api-docs",
+  "name": "Inttegro SDK for React Native",
+  "includeVersion": true,
+  "readme": "README.md",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "githubPages": true,
+  "navigationLinks": {
+    "Studio": "https://studio.inttegro.com/sdks/react-native",
+    "GitHub": "https://github.com/zebodotdev/inttegro-sdk-react-native"
+  }
+}
