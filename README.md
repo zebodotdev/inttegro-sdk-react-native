@@ -1,6 +1,6 @@
 # Inttegro React Native
 
-[API reference](https://react-native.inttegro.dev/v0.2.0/) ·
+[API reference](https://react-native.inttegro.dev/v0.3.0/) ·
 [Studio guide](https://studio.inttegro.com/sdks/react-native)
 
 Typed React Native facade for Inttegro's native payment sheet. This is an
@@ -37,6 +37,12 @@ await initializePaymentSheet({
   orderId,
   returnURL: 'merchant-app://inttegro-return',
   telemetry: activeTraceContext, // Optional { traceparent, tracestate }.
+  features: {
+    showLineItems: true,
+    showInvoiceDownload: true,
+    showReceiptDownload: true,
+    allowPaymentMethodChange: false,
+  },
 });
 
 try {
@@ -58,6 +64,12 @@ try {
   lifecycleSubscription.remove();
 }
 ```
+
+All feature flags are optional. Line items and post-payment downloads are off
+by default; changing an attached payment method remains allowed by default.
+Invoice and receipt actions appear only when Checkout returns the corresponding
+document link after payment succeeds. Disabling payment-method changes does not
+block collection when the Order has no attached method.
 
 Finalizing an Order seals its amount and activates checkout; it does not mean
 the payment has completed. Treat the immediate `completed` result as client UI
@@ -85,7 +97,7 @@ missed.
 The package includes a Codegen-compatible TurboModule that delegates to the
 same native `Inttegro` artifacts used by the Flutter SDK. CocoaPods links the
 iOS artifact through `InttegroReactNative.podspec`, while Gradle resolves
-`com.inttegro:inttegro-android:0.1.0`.
+`com.inttegro:inttegro-android:0.2.0`.
 
 ## Requirements
 

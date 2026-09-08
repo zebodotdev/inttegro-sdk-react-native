@@ -23,6 +23,18 @@ export interface PaymentSheetTelemetry {
   tracestate?: string;
 }
 
+/** Optional content and actions exposed by the native payment sheet. */
+export interface PaymentSheetFeatures {
+  /** Shows the Order's line items before payment. Defaults to `false`. */
+  showLineItems?: boolean;
+  /** Offers the invoice PDF after payment succeeds. Defaults to `false`. */
+  showInvoiceDownload?: boolean;
+  /** Offers the receipt after payment succeeds. Defaults to `false`. */
+  showReceiptDownload?: boolean;
+  /** Lets the payer replace an attached payment method. Defaults to `true`. */
+  allowPaymentMethodChange?: boolean;
+}
+
 /** Configuration stored for the next payment-sheet presentation. */
 export interface PaymentSheetConfiguration {
   /** Client-safe ID of an Order finalized by the merchant backend. */
@@ -33,6 +45,8 @@ export interface PaymentSheetConfiguration {
   appearance?: PaymentSheetAppearance;
   /** Optional SDK diagnostics and distributed-trace configuration. */
   telemetry?: PaymentSheetTelemetry;
+  /** Optional payment-sheet content and actions. */
+  features?: PaymentSheetFeatures;
 }
 
 /** Terminal outcome of one native payment-sheet presentation. */
