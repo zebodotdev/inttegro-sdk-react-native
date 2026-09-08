@@ -117,6 +117,18 @@ export function normalizeConfiguration(
     throw new TypeError('telemetry.tracestate must be at most 512 characters without newlines');
   }
 
+  const features = configuration.features;
+  for (const [name, enabled] of Object.entries({
+    showLineItems: features?.showLineItems,
+    showInvoiceDownload: features?.showInvoiceDownload,
+    showReceiptDownload: features?.showReceiptDownload,
+    allowPaymentMethodChange: features?.allowPaymentMethodChange,
+  })) {
+    if (enabled !== undefined && typeof enabled !== 'boolean') {
+      throw new TypeError(`features.${name} must be a boolean`);
+    }
+  }
+
   return { ...configuration, orderId };
 }
 

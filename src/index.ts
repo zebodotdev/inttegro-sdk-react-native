@@ -19,6 +19,7 @@ export type {
   PaymentSheetConfiguration,
   PaymentSheetEvent,
   PaymentSheetEventType,
+  PaymentSheetFeatures,
   PaymentSheetResult,
   PaymentSheetEventSubscription,
   PaymentSheetTelemetry,

@@ -29,6 +29,27 @@ describe('payment-sheet contract', () => {
         }),
       /primaryColor/
     );
+    assert.throws(
+      () =>
+        normalizeConfiguration({
+          orderId: 'or_test',
+          features: { showLineItems: 'yes' },
+        }),
+      /showLineItems/
+    );
+  });
+
+  it('preserves opt-in payment-sheet features', () => {
+    const features = {
+      showLineItems: true,
+      showInvoiceDownload: true,
+      showReceiptDownload: true,
+      allowPaymentMethodChange: false,
+    };
+    assert.deepEqual(
+      normalizeConfiguration({ orderId: 'or_test', features }).features,
+      features
+    );
   });
 
   it('decodes native results without weakening the union', () => {
@@ -90,6 +111,27 @@ describe('payment-sheet contract', () => {
       type: 'checkoutLoadStarted',
       timestamp: event.timestamp,
     });
+    assert.equal(
+      toPaymentSheetEvent({
+        ...event,
+        name: 'inttegro.payment.confirmation.required',
+      }).type,
+      'confirmationRequired'
+    );
+    assert.equal(
+      toPaymentSheetEvent({
+        ...event,
+        name: 'inttegro.payment.authorization.required',
+      }).type,
+      'authorizationRequired'
+    );
+    assert.equal(
+      toPaymentSheetEvent({
+        ...event,
+        name: 'inttegro.payment.status.polling',
+      }).type,
+      'paymentStatusPolling'
+    );
     assert.equal(
       toPaymentSheetEvent({
         ...event,
