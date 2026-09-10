@@ -37,9 +37,13 @@ jobs:
           cache: npm
 
       - name: Build API documentation
+        shell: bash
         run: |
           npm ci
-          npm run docs
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          npm run docs -- \
+            --sourceLinkTemplate \
+            "https://github.com/${GITHUB_REPOSITORY}/blob/${SOURCE_SHA}/src/{path}#L{line}"
 
       - name: Publish versioned documentation
         shell: bash

@@ -3,17 +3,16 @@
 [API reference](https://react-native.inttegro.dev/v0.3.0/) ·
 [Studio guide](https://studio.inttegro.com/sdks/react-native)
 
-Typed React Native facade for Inttegro's native payment sheet. This is an
-implementation spike and is not ready to publish or use with live payments.
-The current collection surface supports mobile money; card, Apple Pay, and
-Google Pay are not exposed.
+Typed React Native facade for Inttegro's native payment sheet. The current
+collection surface supports mobile money; card, Apple Pay, and Google Pay are
+not exposed in this version.
 
 ```ts
+import { addPaymentSheetEventListener } from '@inttegro/react-native/events';
 import {
-  addPaymentSheetEventListener,
   initializePaymentSheet,
   presentPaymentSheet,
-} from '@inttegro/react-native';
+} from '@inttegro/react-native/payment-sheet';
 
 // Your backend must create and finalize the Order before this handoff.
 const { orderId } = await merchantBackend.createCheckoutOrder(cart);
@@ -65,8 +64,27 @@ try {
 }
 ```
 
+The root import remains supported. Applications that prefer responsibility-based
+modules can import the same APIs without pulling unrelated names into a file:
+
+```ts
+import {
+  initializePaymentSheet,
+  presentPaymentSheet,
+} from '@inttegro/react-native/payment-sheet';
+import { addPaymentSheetEventListener } from '@inttegro/react-native/events';
+import {
+  addPaymentSheetTelemetryListener,
+} from '@inttegro/react-native/telemetry';
+```
+
+These are package entry points, not separate native implementations. They stay
+on one version and delegate to the same iOS or Android state machine.
+
 All feature flags are optional. Line items and post-payment downloads are off
 by default; changing an attached payment method remains allowed by default.
+When line items are enabled, the Order summary still starts collapsed. Opening
+it expands the native sheet as the items are revealed.
 Invoice and receipt actions appear only when Checkout returns the corresponding
 document link after payment succeeds. Disabling payment-method changes does not
 block collection when the Order has no attached method.

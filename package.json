@@ -1,6 +1,6 @@
 {
   "name": "@inttegro/react-native",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Inttegro SDK for React Native",
   "type": "module",
   "main": "./lib/index.js",
@@ -11,9 +11,30 @@
       "react-native": "./src/index.ts",
       "default": "./lib/index.js"
     },
+    "./payment-sheet": {
+      "types": "./lib/payment-sheet.d.ts",
+      "react-native": "./src/payment-sheet.ts",
+      "default": "./lib/payment-sheet.js"
+    },
+    "./events": {
+      "types": "./lib/events.d.ts",
+      "react-native": "./src/events.ts",
+      "default": "./lib/events.js"
+    },
+    "./telemetry": {
+      "types": "./lib/telemetry.d.ts",
+      "react-native": "./src/telemetry.ts",
+      "default": "./lib/telemetry.js"
+    },
+    "./types": {
+      "types": "./lib/types.d.ts",
+      "react-native": "./src/types.ts",
+      "default": "./lib/types.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
+    "CHANGELOG.md",
     "src",
     "lib",
     "android",
