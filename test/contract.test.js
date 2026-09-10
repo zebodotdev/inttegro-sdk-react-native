@@ -93,10 +93,11 @@ describe('payment-sheet contract', () => {
       name: 'inttegro.checkout.load.started',
       timestamp: '2026-09-04T12:00:00.000Z',
     };
-    assert.deepEqual(
-      decodePaymentSheetTelemetryEvent(JSON.stringify(event)),
-      event
-    );
+    const decodedEvent = decodePaymentSheetTelemetryEvent(JSON.stringify(event));
+    assert.deepEqual(decodedEvent, {
+      ...event,
+      timestamp: new Date(event.timestamp),
+    });
     assert.throws(
       () =>
         decodePaymentSheetTelemetryEvent(
@@ -104,37 +105,44 @@ describe('payment-sheet contract', () => {
         ),
       /invalid telemetry event/
     );
+    assert.throws(
+      () =>
+        decodePaymentSheetTelemetryEvent(
+          JSON.stringify({ ...event, timestamp: '2026-09-04T12:00:00' })
+        ),
+      /invalid telemetry event/
+    );
 
-    assert.deepEqual(toPaymentSheetEvent(event), {
+    assert.deepEqual(toPaymentSheetEvent(decodedEvent), {
       flowId: event.flowId,
       sequence: event.sequence,
       type: 'checkoutLoadStarted',
-      timestamp: event.timestamp,
+      timestamp: new Date(event.timestamp),
     });
     assert.equal(
       toPaymentSheetEvent({
-        ...event,
+        ...decodedEvent,
         name: 'inttegro.payment.confirmation.required',
       }).type,
       'confirmationRequired'
     );
     assert.equal(
       toPaymentSheetEvent({
-        ...event,
+        ...decodedEvent,
         name: 'inttegro.payment.authorization.required',
       }).type,
       'authorizationRequired'
     );
     assert.equal(
       toPaymentSheetEvent({
-        ...event,
+        ...decodedEvent,
         name: 'inttegro.payment.status.polling',
       }).type,
       'paymentStatusPolling'
     );
     assert.equal(
       toPaymentSheetEvent({
-        ...event,
+        ...decodedEvent,
         name: 'inttegro.request.prepared',
         operation: 'checkout.lookup',
       }),
