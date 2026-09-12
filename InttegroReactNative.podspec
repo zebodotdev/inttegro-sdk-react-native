@@ -10,7 +10,7 @@ Pod::Spec.new do |spec|
   spec.license = package['license']
   spec.author = package['author']
   spec.source = {
-    git: 'https://github.com/zebodotdev/inttegro-sdk-react-native.git',
+    git: 'https://github.com/inttegro/inttegro-sdk-react-native.git',
     tag: spec.version.to_s,
   }
   spec.source_files = 'ios/**/*.{h,m,mm,swift}'

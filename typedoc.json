@@ -8,7 +8,7 @@
   ],
   "entryPointStrategy": "expand",
   "disableGit": true,
-  "sourceLinkTemplate": "https://github.com/zebodotdev/inttegro-sdk-react-native/blob/master/src/{path}#L{line}",
+  "sourceLinkTemplate": "https://github.com/inttegro/inttegro-sdk-react-native/blob/master/src/{path}#L{line}",
   "sourceLinkExternal": true,
   "projectDocuments": ["docs/*.md"],
   "out": "build/api-docs",
@@ -28,6 +28,6 @@
   "githubPages": true,
   "navigationLinks": {
     "Studio": "https://studio.inttegro.com/sdks/react-native",
-    "GitHub": "https://github.com/zebodotdev/inttegro-sdk-react-native"
+    "GitHub": "https://github.com/inttegro/inttegro-sdk-react-native"
   }
 }
